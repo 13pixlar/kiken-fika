@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --webpack",
-    "build": "next build --webpack",
+    "build:only": "next build --webpack",
+    "build": "next build --webpack && pm2 reload kiken-fika",
     "start": "next start",
     "lint": "eslint",
     "db:generate": "drizzle-kit generate",
