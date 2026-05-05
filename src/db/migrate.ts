@@ -15,7 +15,7 @@ function ensureDatabaseDirectory() {
 
 async function main() {
   ensureDatabaseDirectory();
-  migrate(db, { migrationsFolder: "./src/db/migrations" });
+  await migrate(db, { migrationsFolder: "./src/db/migrations" });
   await ensureDefaultSettings();
   await ensureAdminUser();
   console.log("Database migrated and seeded.");
