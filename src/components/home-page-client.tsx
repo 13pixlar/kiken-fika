@@ -6,6 +6,7 @@ import { CalendarDays, ChartColumnIncreasing, CircleHelp, type LucideIcon } from
 import { cn } from "@/lib/utils";
 import { homeCardRadiusClass } from "@/src/components/home-corner-radius";
 import { GameList } from "@/src/components/game-list";
+import { SignupHowItWorksExplanation } from "@/src/components/signup-how-it-works";
 import type { GameRow } from "@/src/lib/types";
 
 type HomePageClientProps = {
@@ -165,9 +166,23 @@ export function HomePageClient({ initialGames }: HomePageClientProps) {
           <AlternatePanel>
             <h2 className="text-lg font-semibold text-white">Hur gör man — fika på hemmamatch</h2>
             <div className="mt-6 max-w-2xl space-y-4 text-sm leading-relaxed text-blue-50">
+              <div className="space-y-2">
+                <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-blue-100">
+                  Anmäl dig som fikaansvarig
+                </h3>
+                <p>
+                  <SignupHowItWorksExplanation variant="panel" />
+                </p>
+                <p>
+                  Gå till fliken <strong className="text-white">Matcher</strong>, välj en{" "}
+                  <strong className="text-white">hemmamatch</strong> och klicka på{" "}
+                  <strong className="text-white">Anmäl dig</strong>. Högst två föräldrar kan vara
+                  anmälda som fikaansvariga per hemmamatch. Behöver du ändra dig kan du ta bort din
+                  anmälan med samma PIN som du skapade för barnets namn.
+                </p>
+              </div>
               <p>
-                Vi föräldrar hjälps åt att sälja fika på hemmamatcher. Allt som säljs går oavkortat
-                till <strong className="text-white">lagkassan</strong> och bidrar till resor,
+                Vi föräldrar hjälps åt att sälja fika på hemmamatcher. Intäkterna bidrar till resor,
                 material och det som laget behöver under säsongen. Tack för att du ställer upp!
               </p>
               <div className="space-y-2">
@@ -175,10 +190,10 @@ export function HomePageClient({ initialGames }: HomePageClientProps) {
                   Kaffe
                 </h3>
                 <p>
-                  Koka gärna kaffe hemma och fyll en{" "}
-                  <strong className="text-white">termos</strong> så att det räcker en stund. Fyll på
-                  med varmt vatten om det finns i klubbhuset, eller ta med två termosar om det blir
-                  mycket folk. Märk gärna termosen så den hittas lätt bakom båset.
+                  Ta med <strong className="text-white">två termosar</strong>. Gärna att fler
+                  föräldrar hjälper till med just kaffe — det brukar gå åt{" "}
+                  <strong className="text-white">4–6 termosar</strong>. Märk gärna termosarna så de
+                  hittas lätt bakom båset.
                 </p>
               </div>
               <div className="space-y-2">
@@ -197,16 +212,43 @@ export function HomePageClient({ initialGames }: HomePageClientProps) {
                   Tillbehör
                 </h3>
                 <p>
-                  Ta gärna med <strong className="text-white">servetter</strong>,{" "}
-                  <strong className="text-white">mjölk</strong> (eller havre) till kaffet och{" "}
-                  <strong className="text-white">pappersmuggar</strong> så att allt går smidigt även när det
-                  är mycket folk. Ett litet paket sugrör kan vara bra om det finns barn i kön.
+                  Kolla med den som hade fikat senast vad som finns kvar. Kompletteringshandla{" "}
+                  <strong className="text-white">servetter</strong>,{" "}
+                  <strong className="text-white">muggar</strong>,{" "}
+                  <strong className="text-white">papptallrikar</strong> och{" "}
+                  <strong className="text-white">festis</strong>.
+                </p>
+                <p>
+                  Ta gärna med <strong className="text-white">mjölk</strong> (eller{" "}
+                  <strong className="text-white">havre</strong>) till kaffet. Ett litet paket{" "}
+                  <strong className="text-white">sugrör</strong> kan vara bra om det finns barn i
+                  kön.
+                </p>
+                <p>
+                  Ska vi sälja något mer?{" "}
+                  <strong className="text-white">Chokladbollar</strong> brukar alltid gå bra — ett
+                  större paket (12 st) kostar ofta runt 40–45 kr.
+                </p>
+                <p>
+                  Det finns även <strong className="text-white">Loka</strong> och{" "}
+                  <strong className="text-white">Cola</strong> kvar att sälja.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-blue-100">
+                  Bord
+                </h3>
+                <p>
+                  Har någon ett <strong className="text-white">fällbart bord</strong> som kan tas med
+                  till hemmamatcherna? Tidigare har vi kunnat använda bord från{" "}
+                  <strong className="text-white">Alfreds mamma och pappa</strong> och{" "}
+                  <strong className="text-white">Williams föräldrar</strong> — hör av er om ni kan ta
+                  vid eller om det finns ett annat bord vi kan låna.
                 </p>
               </div>
               <p className="border-t border-white/15 pt-5 text-xs text-blue-100/85">
                 Kom i god tid före matchstart, ställ fram det ni har med er och håll lite koll på
-                kassan och påfyllning. Vid frågor – fråga lagledaren eller någon som haft fika
-                senast.
+                försäljning och påfyllning. Vid frågor — fråga gärna någon som haft fika senast.
               </p>
             </div>
           </AlternatePanel>

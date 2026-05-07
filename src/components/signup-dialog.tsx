@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signupPostSchema } from "@/src/lib/validators";
 import { FIKA_PLAYER_NAMES } from "@/src/lib/constants";
+import { SignupHowItWorksExplanation } from "@/src/components/signup-how-it-works";
 import { cn } from "@/lib/utils";
 import type { GameRow } from "@/src/lib/types";
 import type { z } from "zod";
@@ -121,9 +122,7 @@ export function SignupDialog({ game, onDone, signupFull }: SignupDialogProps) {
         <DialogHeader>
           <DialogTitle>Fikaförsäljning</DialogTitle>
           <DialogDescription>
-            Välj <strong>ditt barns namn</strong> i listan och en <strong>fyrsiffrig PIN</strong>{" "}
-            (välj första gången, spara den). När barnet väl har en PIN krävs samma PIN för att anmäla
-            eller ta bort fika för det namnet.
+            <SignupHowItWorksExplanation variant="dialog" />
             {signupFull ? (
               <>
                 {" "}
