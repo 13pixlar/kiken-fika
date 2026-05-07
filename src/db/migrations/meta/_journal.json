@@ -15,6 +15,13 @@
       "when": 1778017151587,
       "tag": "0001_tired_lord_tyger",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1778156853711,
+      "tag": "0002_open_trish_tilby",
+      "breakpoints": true
     }
   ]
 }

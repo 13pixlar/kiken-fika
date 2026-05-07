@@ -37,6 +37,7 @@ export async function GET() {
         startsAt: game.startsAt,
         endsAt: game.endsAt,
         isHomeGame: game.isHomeGame,
+        fikaSalesSek: game.fikaSalesSek ?? null,
         signups: game.signups.map((signup) => ({
           id: signup.id,
           parentId: signup.parentId,

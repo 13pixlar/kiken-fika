@@ -4,6 +4,8 @@ import { getIronSession, type SessionOptions } from "iron-session";
 type SessionData = {
   isAdmin?: boolean;
   username?: string;
+  /** Set at login; used to update account without ambiguous username renames. */
+  adminUserId?: number;
 };
 
 const sessionPassword =

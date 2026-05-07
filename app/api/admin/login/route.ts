@@ -12,14 +12,15 @@ export async function POST(request: Request) {
 
   await ensureAdminUser();
   const { username, password } = parsed.data;
-  const ok = await verifyAdminCredentials(username, password);
-  if (!ok) {
+  const adminId = await verifyAdminCredentials(username, password);
+  if (adminId == null) {
     return NextResponse.json({ error: "Fel användarnamn eller lösenord." }, { status: 401 });
   }
 
   const session = await getSession();
   session.isAdmin = true;
   session.username = username;
+  session.adminUserId = adminId;
   await session.save();
 
   return NextResponse.json({ ok: true });

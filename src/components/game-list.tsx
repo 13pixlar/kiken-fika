@@ -11,6 +11,7 @@ import { SignupDialog } from "@/src/components/signup-dialog";
 import { TeamBadge } from "@/src/components/team-badge";
 import { MAX_SIGNUPS_PER_HOME_GAME } from "@/src/lib/constants";
 import { formatVenueForDisplay } from "@/src/lib/format-venue";
+import { formatSekInteger } from "@/src/lib/format-sek";
 import type { GameRow } from "@/src/lib/types";
 
 type GameListProps = {
@@ -263,6 +264,17 @@ function GameCard({
                 {formatAnsvarigaNames(game.signups.map((s) => s.parentName))}
               </p>
             )}
+            {isPast ? (
+              <div className="mt-3 border-t border-white/10 pt-3">
+                {game.fikaSalesSek != null ? (
+                  <p className="text-sm font-semibold text-emerald-200">
+                    Sålt för {formatSekInteger(game.fikaSalesSek)}
+                  </p>
+                ) : (
+                  <p className="text-xs text-blue-200/80">Försäljningsbelopp inte inlagt ännu.</p>
+                )}
+              </div>
+            ) : null}
           </div>
           <div
             className={`mt-auto flex flex-wrap items-end gap-4 pt-5 ${isPast ? "justify-end" : "justify-between"}`}

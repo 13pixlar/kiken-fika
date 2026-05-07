@@ -9,6 +9,8 @@ export const games = sqliteTable("games", {
   startsAt: integer("starts_at", { mode: "timestamp_ms" }).notNull(),
   endsAt: integer("ends_at", { mode: "timestamp_ms" }),
   isHomeGame: integer("is_home_game", { mode: "boolean" }).notNull().default(false),
+  /** Admin: total fika sales for this match (whole SEK). Null = not entered. */
+  fikaSalesSek: integer("fika_sales_sek"),
   rawSummary: text("raw_summary").notNull(),
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()

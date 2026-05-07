@@ -2,11 +2,14 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import Image from "next/image";
-import { CalendarDays, ChartColumnIncreasing, CircleHelp, type LucideIcon } from "lucide-react";
+import { CalendarDays, ChartColumnIncreasing, CircleHelp, Shield, type LucideIcon } from "lucide-react";
+import { format } from "date-fns";
+import { sv } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { homeCardRadiusClass } from "@/src/components/home-corner-radius";
 import { GameList } from "@/src/components/game-list";
 import { SignupHowItWorksExplanation } from "@/src/components/signup-how-it-works";
+import { formatSekInteger } from "@/src/lib/format-sek";
 import type { GameRow } from "@/src/lib/types";
 
 type HomePageClientProps = {
@@ -15,11 +18,20 @@ type HomePageClientProps = {
 
 type HomeSection = "matcher" | "statistik" | "hur";
 
-const NAV_ITEMS: { id: HomeSection; label: string; Icon: LucideIcon }[] = [
+const SECTION_NAV_ITEMS: { id: HomeSection; label: string; Icon: LucideIcon }[] = [
   { id: "matcher", label: "Matcher", Icon: CalendarDays },
   { id: "hur", label: "Hur gör man", Icon: CircleHelp },
   { id: "statistik", label: "Statistik", Icon: ChartColumnIncreasing },
 ];
+
+/** One emoji per home match with fikaansvar (cycles for readability when counts grow). */
+const FIKA_STAT_MATCH_EMOJIS = ["☕", "🧁", "🍪", "🥐"] as const;
+
+function fikaMatchEmojiIndicators(matchCount: number): string {
+  return Array.from({ length: matchCount }, (_, index) => FIKA_STAT_MATCH_EMOJIS[index % FIKA_STAT_MATCH_EMOJIS.length]).join(
+    "",
+  );
+}
 
 function computeFikaStats(games: GameRow[]) {
   const counts = new Map<string, number>();
@@ -32,6 +44,30 @@ function computeFikaStats(games: GameRow[]) {
   return [...counts.entries()]
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "sv"))
     .map(([name, count]) => ({ name, count }));
+}
+
+/** Tidigare hemmamatcher med ev. inlagt försäljningsbelopp (för statistikfliken). */
+function computePastHomeFikaSalesRows(games: GameRow[], nowMs: number) {
+  const pastHome = games
+    .filter((g) => g.isHomeGame && new Date(g.startsAt).getTime() < nowMs)
+    .sort((a, b) => new Date(b.startsAt).getTime() - new Date(a.startsAt).getTime());
+
+  const withAmount = pastHome.filter((g) => g.fikaSalesSek != null);
+  const totalSek = withAmount.reduce((sum, g) => sum + (g.fikaSalesSek as number), 0);
+
+  return {
+    rows: pastHome,
+    totalSek,
+    matchesWithAmount: withAmount.length,
+  };
+}
+
+function formatStatistikMatchWhen(iso: string | Date) {
+  const d = typeof iso === "string" ? new Date(iso) : iso;
+  const weekdayRaw = format(d, "EEE", { locale: sv }).replace(/\.$/, "");
+  const weekday = weekdayRaw.charAt(0).toUpperCase() + weekdayRaw.slice(1);
+  const stamp = format(d, "d/M/yyyy HH:mm", { locale: sv });
+  return `${weekday} ${stamp}`;
 }
 
 function AlternatePanel({
@@ -60,10 +96,16 @@ export function HomePageClient({ initialGames }: HomePageClientProps) {
 
   const fikaStats = useMemo(() => computeFikaStats(games), [games]);
 
+  const pastSales = useMemo(() => {
+    // eslint-disable-next-line react-hooks/purity -- classify rows vs "nu" when game list uppdateras
+    const nowMs = Date.now();
+    return computePastHomeFikaSalesRows(games, nowMs);
+  }, [games]);
+
   useEffect(() => {
     const raw = window.location.hash.slice(1);
     if (raw === "matcher" || raw === "statistik" || raw === "hur") {
-      setSection(raw);
+      queueMicrotask(() => setSection(raw));
     }
   }, []);
 
@@ -107,7 +149,7 @@ export function HomePageClient({ initialGames }: HomePageClientProps) {
               aria-label="Huvudmeny"
               className="flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-white/15 pt-5 sm:gap-x-10"
             >
-              {NAV_ITEMS.map(({ id, label, Icon }) => (
+              {SECTION_NAV_ITEMS.map(({ id, label, Icon }) => (
                 <a
                   key={id}
                   href={`#${id}`}
@@ -128,6 +170,13 @@ export function HomePageClient({ initialGames }: HomePageClientProps) {
                   {label}
                 </a>
               ))}
+              <a
+                href="/admin"
+                className="inline-flex items-center gap-1.5 text-sm text-sky-200/95 transition-colors no-underline hover:text-white"
+              >
+                <Shield className="size-4 shrink-0 opacity-90" aria-hidden />
+                Admin
+              </a>
             </nav>
           </div>
         </header>
@@ -136,31 +185,97 @@ export function HomePageClient({ initialGames }: HomePageClientProps) {
           <GameList games={games} onRefresh={refreshData} />
         ) : section === "statistik" ? (
           <AlternatePanel>
-            <h2 className="text-lg font-semibold text-white">Statistik — fikaansvar</h2>
-            <p className="mt-2 text-sm text-blue-100/95">
-              Antal hemmamatcher varje registrerade spelare har varit eller är anmäld som ansvarig
-              för fika (enligt listan nedan på sidan när du visar Matcher).
-            </p>
-            {fikaStats.length === 0 ? (
-              <p className="mt-6 text-sm text-blue-100/90">
-                Här visas hur många hemmamatcher varje spelare har haft eller har fikaansvaret. När
-                det finns anmälningar visas de här — synka gärna i admin om listan inte stämmer.
-              </p>
-            ) : (
-              <ul className="mt-6 max-w-lg divide-y divide-white/12 border border-white/15 bg-[#0f3559]">
-                {fikaStats.map(({ name, count }) => (
-                  <li
-                    key={name}
-                    className="flex items-center justify-between gap-4 px-4 py-3 text-sm"
-                  >
-                    <span className="font-medium text-white">{name}</span>
-                    <span className="tabular-nums text-blue-50">
-                      {count} {count === 1 ? "match" : "matcher"}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
+            <div className="grid gap-10 lg:grid-cols-2 lg:items-start lg:gap-10 xl:gap-12">
+              <div className="min-w-0 space-y-4">
+                <h2 className="text-lg font-semibold text-white">
+                  Försäljning (hemmamatcher)
+                </h2>
+                <p className="text-sm text-blue-100/95">
+                  Tidigare hemmamatcher och hur mycket fika som sålts (inlagt i admin). Totalt räknar
+                  bara matcher där belopp är ifyllt.
+                </p>
+                {pastSales.rows.length === 0 ? (
+                  <p className="text-sm text-blue-100/90">
+                    Inga spelade hemmamatcher ännu — kom tillbaka när säsongen kommit igång.
+                  </p>
+                ) : (
+                  <>
+                    <ul className="divide-y divide-white/12 border border-white/15 bg-[#0f3559]">
+                      {pastSales.rows.map((game) => (
+                        <li
+                          key={game.id}
+                          className="flex flex-col gap-1 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+                        >
+                          <div className="min-w-0">
+                            <p className="font-medium text-white">
+                              {formatStatistikMatchWhen(game.startsAt)}
+                            </p>
+                            <p className="text-xs text-blue-100/85">{game.title}</p>
+                          </div>
+                          <span className="shrink-0 tabular-nums font-medium text-blue-50">
+                            {game.fikaSalesSek != null
+                              ? formatSekInteger(game.fikaSalesSek)
+                              : "—"}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="text-sm font-semibold text-white">
+                      Totalt inlagt:{" "}
+                      <span className="tabular-nums text-emerald-200">
+                        {formatSekInteger(pastSales.totalSek)}
+                      </span>
+                      {pastSales.matchesWithAmount > 0 ? (
+                        <span className="mt-1 block text-xs font-normal text-blue-100/85">
+                          ({pastSales.matchesWithAmount}{" "}
+                          {pastSales.matchesWithAmount === 1 ? "match" : "matcher"} med belopp)
+                        </span>
+                      ) : (
+                        <span className="mt-1 block text-xs font-normal text-blue-100/85">
+                          (inga belopp inlagda ännu)
+                        </span>
+                      )}
+                    </p>
+                  </>
+                )}
+              </div>
+
+              <div className="min-w-0 space-y-4">
+                <h2 className="text-lg font-semibold text-white">Statistik — fikaansvar</h2>
+                <p className="text-sm text-blue-100/95">
+                  Antal hemmamatcher varje registrerade spelare har varit eller är anmäld som ansvarig
+                  för fika (enligt listan nedan på sidan när du visar Matcher).
+                </p>
+                {fikaStats.length === 0 ? (
+                  <p className="text-sm text-blue-100/90">
+                    Här visas hur många hemmamatcher varje spelare har haft eller har fikaansvaret.
+                    När det finns anmälningar visas de här — synka gärna i admin om listan inte stämmer.
+                  </p>
+                ) : (
+                  <ul className="divide-y divide-white/12 border border-white/15 bg-[#0f3559]">
+                    {fikaStats.map(({ name, count }) => (
+                      <li
+                        key={name}
+                        className="flex items-start justify-between gap-4 px-4 py-3 text-sm"
+                      >
+                        <div className="min-w-0 space-y-1">
+                          <span className="font-medium text-white">{name}</span>
+                          <p
+                            className="break-words text-base leading-snug tracking-tight text-blue-50/95"
+                            aria-hidden="true"
+                          >
+                            {fikaMatchEmojiIndicators(count)}
+                          </p>
+                        </div>
+                        <span className="shrink-0 tabular-nums text-blue-50">
+                          {count} {count === 1 ? "match" : "matcher"}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
           </AlternatePanel>
         ) : (
           <AlternatePanel>

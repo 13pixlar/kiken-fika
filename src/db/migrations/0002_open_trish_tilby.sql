@@ -1,0 +1,1 @@
+ALTER TABLE `games` ADD `fika_sales_sek` integer;

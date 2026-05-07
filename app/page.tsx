@@ -28,6 +28,7 @@ export default async function Home() {
         startsAt: game.startsAt.toISOString(),
         endsAt: game.endsAt ? game.endsAt.toISOString() : null,
         isHomeGame: game.isHomeGame,
+        fikaSalesSek: game.fikaSalesSek ?? null,
         signups: game.signups.map((signup) => ({
           id: signup.id,
           parentId: signup.parentId,

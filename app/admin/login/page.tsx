@@ -7,9 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useHasMounted } from "@/src/hooks/use-has-mounted";
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const loginFormMounted = useHasMounted();
   const [username, setUsername] = useState("admin");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -56,12 +58,20 @@ export default function AdminLoginPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Lösenord</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-              />
+              {loginFormMounted ? (
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                />
+              ) : (
+                <div
+                  className="h-9 animate-pulse rounded-md bg-muted"
+                  aria-busy="true"
+                  aria-label="Laddar fält"
+                />
+              )}
             </div>
             <Button className="w-full" type="submit" disabled={loading}>
               {loading ? "Loggar in..." : "Logga in"}
